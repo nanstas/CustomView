@@ -26,6 +26,7 @@ class StatsView @JvmOverloads constructor(
     private var lineWidth = AndroidUtils.dp(context, 5F).toFloat()
     private var fontSize = AndroidUtils.dp(context, 40F).toFloat()
     private var colors = emptyList<Int>()
+    private var dataSum = 0F
 
     init {
         context.withStyledAttributes(attrs, R.styleable.StatsView) {
@@ -91,6 +92,7 @@ class StatsView @JvmOverloads constructor(
     var data: List<Float> = emptyList()
         set(value) {
             field = value
+            dataSum = data.sum()
             invalidate()
         }
 
@@ -107,9 +109,7 @@ class StatsView @JvmOverloads constructor(
         if (data.isEmpty()) {
             return
         }
-        val dataSum = data.sum()
         var startFrom = -90F
-
         for ((index, datum) in data.withIndex()) {
             val angle = datum / dataSum * 360F
             paint.color = colors.getOrNull(index) ?: randomColor()
@@ -117,7 +117,8 @@ class StatsView @JvmOverloads constructor(
             startFrom += angle
         }
         paint.color = colors.first()
-        canvas.drawCircle(center.x, center.y - radius, 1F, paint)
+        paint.strokeWidth = lineWidth / 2
+        canvas.drawCircle(center.x, center.y - radius, lineWidth / 4, paint)
 
         canvas.drawText(
             "%.2f%%".format(100F),
